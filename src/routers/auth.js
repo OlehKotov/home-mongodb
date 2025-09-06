@@ -2,22 +2,28 @@ import { Router } from 'express';
 import { ctrlWrapper } from '../utils/ctrlWrapper.js';
 import { loginUserSchema, registerUserSchema } from '../validation/auth.js';
 import {
-  deleteUserController,
-  getUserByIdController,
-  getUsersController,
+  // deleteUserController,
+  // getUserByIdController,
+  // getUsersController,
   loginUserController,
   logoutUserController,
-  patchUserController,
+  // patchUserController,
   registerUserController,
 } from '../controllers/auth.js';
 import { validateBody } from '../middlewares/validateBody.js';
-import { isValidId } from '../middlewares/isValidId.js';
-import { updateUserSchema } from '../validation/user.js';
+// import { isValidId } from '../middlewares/isValidId.js';
+// import { updateUserSchema } from '../validation/user.js';
+import { authenticate } from '../middlewares/authenticate.js';
 
 const router = Router();
 
-router.get('/', ctrlWrapper(getUsersController));
-router.get('/:userId', isValidId, ctrlWrapper(getUserByIdController));
+// router.get('/', authenticate, ctrlWrapper(getUsersController));
+// router.get(
+//   '/:userId',
+//   authenticate,
+//   isValidId,
+//   ctrlWrapper(getUserByIdController),
+// );
 
 router.post(
   '/register',
@@ -29,15 +35,20 @@ router.post(
   validateBody(loginUserSchema),
   ctrlWrapper(loginUserController),
 );
-router.post('/logout', ctrlWrapper(logoutUserController));
+router.post('/logout', authenticate, ctrlWrapper(logoutUserController));
 
-
-router.delete('/:userId', isValidId, ctrlWrapper(deleteUserController));
-router.patch(
-  '/:userId',
-  isValidId,
-  validateBody(updateUserSchema),
-  ctrlWrapper(patchUserController),
-);
+// router.delete(
+//   '/:userId',
+//   authenticate,
+//   isValidId,
+//   ctrlWrapper(deleteUserController),
+// );
+// router.patch(
+//   '/:userId',
+//   authenticate,
+//   isValidId,
+//   validateBody(updateUserSchema),
+//   ctrlWrapper(patchUserController),
+// );
 
 export default router;

@@ -1,6 +1,6 @@
 import { UsersCollection } from "../db/models/user.js";
-import { calculatePaginationData } from '../utils/calculatePaginationData.js';
-import { SORT_ORDER } from '../constants/index.js';
+// import { calculatePaginationData } from '../utils/calculatePaginationData.js';
+// import { SORT_ORDER } from '../constants/index.js';
 import bcrypt from 'bcrypt';
 import createHttpError from 'http-errors';
 import { randomBytes } from 'crypto';
@@ -8,38 +8,38 @@ import { randomBytes } from 'crypto';
 import { FIFTEEN_MINUTES, ONE_DAY } from '../constants/index.js';
 import { SessionsCollection } from '../db/models/session.js';
 
-export const getAllUsers = async ({
-  page = 1,
-  perPage = 10,
-  sortOrder = SORT_ORDER.ASC,
-  sortBy = '_id',
-}) => {
-  const limit = perPage;
-  const skip = (page - 1) * perPage;
+// export const getAllUsers = async ({
+//   page = 1,
+//   perPage = 10,
+//   sortOrder = SORT_ORDER.ASC,
+//   sortBy = '_id',
+// }) => {
+//   const limit = perPage;
+//   const skip = (page - 1) * perPage;
 
-  const usersQuery = UsersCollection.find();
-  const usersCount = await UsersCollection.find()
-    .merge(usersQuery)
-    .countDocuments();
+//   const usersQuery = UsersCollection.find();
+//   const usersCount = await UsersCollection.find()
+//     .merge(usersQuery)
+//     .countDocuments();
 
-  const users = await usersQuery
-    .skip(skip)
-    .limit(limit)
-    .sort({ [sortBy]: sortOrder })
-    .exec();
+//   const users = await usersQuery
+//     .skip(skip)
+//     .limit(limit)
+//     .sort({ [sortBy]: sortOrder })
+//     .exec();
 
-  const paginationData = calculatePaginationData(usersCount, perPage, page);
+//   const paginationData = calculatePaginationData(usersCount, perPage, page);
 
-  return {
-    data: users,
-    ...paginationData,
-  };
-};
+//   return {
+//     data: users,
+//     ...paginationData,
+//   };
+// };
 
-export const getUserById = async (userId) => {
-  const user = await UsersCollection.findById(userId);
-  return user;
-};
+// export const getUserById = async (userId) => {
+//   const user = await UsersCollection.findById(userId);
+//   return user;
+// };
 
 export const registerUser = async (payload) => {
    const user = await UsersCollection.findOne({ email: payload.email });
@@ -53,32 +53,32 @@ export const registerUser = async (payload) => {
   });
 };
 
-export const deleteUser = async (userId) => {
-  const user = await UsersCollection.findOneAndDelete({
-    _id: userId,
-  });
+// export const deleteUser = async (userId) => {
+//   const user = await UsersCollection.findOneAndDelete({
+//     _id: userId,
+//   });
 
-  return user;
-};
+//   return user;
+// };
 
-export const updateUser = async (userId, payload, options = {}) => {
-  const rawResult = await UsersCollection.findOneAndUpdate(
-    { _id: userId },
-    payload,
-    {
-      new: true,
-      includeResultMetadata: true,
-      ...options,
-    },
-  );
+// export const updateUser = async (userId, payload, options = {}) => {
+//   const rawResult = await UsersCollection.findOneAndUpdate(
+//     { _id: userId },
+//     payload,
+//     {
+//       new: true,
+//       includeResultMetadata: true,
+//       ...options,
+//     },
+//   );
 
-  if (!rawResult || !rawResult.value) return null;
+//   if (!rawResult || !rawResult.value) return null;
 
-  return {
-    user: rawResult.value,
-    isNew: Boolean(rawResult?.lastErrorObject?.upserted),
-  };
-};
+//   return {
+//     user: rawResult.value,
+//     isNew: Boolean(rawResult?.lastErrorObject?.upserted),
+//   };
+// };
 
 export const loginUser = async (payload) => {
   const user = await UsersCollection.findOne({ email: payload.email });
