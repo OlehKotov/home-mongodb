@@ -1,29 +1,20 @@
 import { Router } from 'express';
 import { ctrlWrapper } from '../utils/ctrlWrapper.js';
-import { loginUserSchema, registerUserSchema } from '../validation/auth.js';
 import {
-  // deleteUserController,
-  // getUserByIdController,
-  // getUsersController,
+  loginUserSchema,
+  registerUserSchema,
+  requestResetEmailSchema,
+} from '../validation/auth.js';
+import {
   loginUserController,
   logoutUserController,
-  // patchUserController,
   registerUserController,
+  requestResetEmailController,
 } from '../controllers/auth.js';
 import { validateBody } from '../middlewares/validateBody.js';
-// import { isValidId } from '../middlewares/isValidId.js';
-// import { updateUserSchema } from '../validation/user.js';
 import { authenticate } from '../middlewares/authenticate.js';
 
 const router = Router();
-
-// router.get('/', authenticate, ctrlWrapper(getUsersController));
-// router.get(
-//   '/:userId',
-//   authenticate,
-//   isValidId,
-//   ctrlWrapper(getUserByIdController),
-// );
 
 router.post(
   '/register',
@@ -37,18 +28,10 @@ router.post(
 );
 router.post('/logout', authenticate, ctrlWrapper(logoutUserController));
 
-// router.delete(
-//   '/:userId',
-//   authenticate,
-//   isValidId,
-//   ctrlWrapper(deleteUserController),
-// );
-// router.patch(
-//   '/:userId',
-//   authenticate,
-//   isValidId,
-//   validateBody(updateUserSchema),
-//   ctrlWrapper(patchUserController),
-// );
+router.post(
+  '/request-reset-email',
+  validateBody(requestResetEmailSchema),
+  ctrlWrapper(requestResetEmailController),
+);
 
 export default router;

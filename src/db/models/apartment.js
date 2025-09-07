@@ -14,17 +14,10 @@ const apartmentSchema = new Schema(
       type: Number,
       required: true,
     },
-    owner: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',               
-      required: false,
-      default: null
-    },
-    status: {
-      type: String,
-      required: true,
-      enum: ['free', 'occupied'],
-    },
+    ownerId: {  
+      type: Schema.Types.ObjectId, 
+      ref: 'users' 
+    },  
   },
   { timestamps: true }
 );

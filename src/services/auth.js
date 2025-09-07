@@ -1,50 +1,20 @@
-import { UsersCollection } from "../db/models/user.js";
-// import { calculatePaginationData } from '../utils/calculatePaginationData.js';
-// import { SORT_ORDER } from '../constants/index.js';
+import { UsersCollection } from '../db/models/user.js';
 import bcrypt from 'bcrypt';
 import createHttpError from 'http-errors';
 import { randomBytes } from 'crypto';
+import jwt from 'jsonwebtoken';
+
+import { SMTP } from '../constants/index.js';
+import { getEnvVar } from '../utils/getEnvVar.js';
+import { sendEmail } from '../utils/sendMail.js';
 
 import { FIFTEEN_MINUTES, ONE_DAY } from '../constants/index.js';
 import { SessionsCollection } from '../db/models/session.js';
 
-// export const getAllUsers = async ({
-//   page = 1,
-//   perPage = 10,
-//   sortOrder = SORT_ORDER.ASC,
-//   sortBy = '_id',
-// }) => {
-//   const limit = perPage;
-//   const skip = (page - 1) * perPage;
-
-//   const usersQuery = UsersCollection.find();
-//   const usersCount = await UsersCollection.find()
-//     .merge(usersQuery)
-//     .countDocuments();
-
-//   const users = await usersQuery
-//     .skip(skip)
-//     .limit(limit)
-//     .sort({ [sortBy]: sortOrder })
-//     .exec();
-
-//   const paginationData = calculatePaginationData(usersCount, perPage, page);
-
-//   return {
-//     data: users,
-//     ...paginationData,
-//   };
-// };
-
-// export const getUserById = async (userId) => {
-//   const user = await UsersCollection.findById(userId);
-//   return user;
-// };
-
 export const registerUser = async (payload) => {
-   const user = await UsersCollection.findOne({ email: payload.email });
+  const user = await UsersCollection.findOne({ email: payload.email });
   if (user) throw createHttpError(409, 'Email in use');
-  
+
   const encryptedPassword = await bcrypt.hash(payload.password, 10);
 
   return await UsersCollection.create({
@@ -52,33 +22,6 @@ export const registerUser = async (payload) => {
     password: encryptedPassword,
   });
 };
-
-// export const deleteUser = async (userId) => {
-//   const user = await UsersCollection.findOneAndDelete({
-//     _id: userId,
-//   });
-
-//   return user;
-// };
-
-// export const updateUser = async (userId, payload, options = {}) => {
-//   const rawResult = await UsersCollection.findOneAndUpdate(
-//     { _id: userId },
-//     payload,
-//     {
-//       new: true,
-//       includeResultMetadata: true,
-//       ...options,
-//     },
-//   );
-
-//   if (!rawResult || !rawResult.value) return null;
-
-//   return {
-//     user: rawResult.value,
-//     isNew: Boolean(rawResult?.lastErrorObject?.upserted),
-//   };
-// };
 
 export const loginUser = async (payload) => {
   const user = await UsersCollection.findOne({ email: payload.email });
@@ -107,4 +50,28 @@ export const loginUser = async (payload) => {
 
 export const logoutUser = async (sessionId) => {
   await SessionsCollection.deleteOne({ _id: sessionId });
+};
+
+export const requestResetToken = async (email) => {
+  const user = await UsersCollection.findOne({ email });
+  if (!user) {
+    throw createHttpError(404, 'User not found');
+  }
+  const resetToken = jwt.sign(
+    {
+      sub: user._id,
+      email,
+    },
+    getEnvVar('JWT_SECRET'),
+    {
+      expiresIn: '15m',
+    },
+  );
+
+  await sendEmail({
+    from: getEnvVar(SMTP.SMTP_FROM),
+    to: email,
+    subject: 'Reset your password',
+    html: `<p>Click <a href="${resetToken}">here</a> to reset your password!</p>`,
+  });
 };
