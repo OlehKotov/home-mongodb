@@ -2,6 +2,7 @@
   "name": "home-mongodb",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint src/**/*.js",
@@ -25,6 +26,7 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
+    "google-auth-library": "^10.3.0",
     "handlebars": "^4.7.8",
     "http-errors": "^2.0.0",
     "joi": "^18.0.1",
