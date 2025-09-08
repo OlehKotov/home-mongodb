@@ -20,13 +20,25 @@ export const updateReadings = async (apartmentId, month, newData) => {
     throw createHttpError(400, "apartmentId and month are required");
   }
 
+  let existing = await ReadingsCollection.findOne({ apartmentId, month });
+
+  if (!existing) {
+    const previous = await ReadingsCollection.findOne(
+      { apartmentId },
+      {},
+      { sort: { month: -1 } }
+    );
+    existing = previous || {};
+  }
+
+  const updatedData = { ...existing.toObject?.(), ...newData, apartmentId, month };
+  delete updatedData._id;
+
   const updated = await ReadingsCollection.findOneAndUpdate(
     { apartmentId, month },
-    { $set: newData },
+    { $set: updatedData },
     { new: true, upsert: true }
   );
 
   return updated;
 };
-
-

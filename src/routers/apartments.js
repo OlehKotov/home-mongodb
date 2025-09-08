@@ -13,6 +13,6 @@ const router = Router();
 router.use(authenticate);
 
 router.get('/', checkRoles(ROLES.ADMIN), ctrlWrapper(getApartmentsController));
-router.get('/:apartmentId', checkRoles(ROLES.ADMIN), ctrlWrapper(getApartmentByIdController));
+router.get('/:apartmentId', checkRoles(ROLES.ADMIN, ROLES.OWNER), ctrlWrapper(getApartmentByIdController));
 
 export default router;
