@@ -25,6 +25,12 @@ export const registerUserSchema = Joi.object({
     'string.empty': 'Пароль обовʼязковий',
   }),
 
+  apartmentNumber: Joi.number().min(1).max(3).required().messages({
+    'number.empty': 'Номер квартири не може бути порожнім',
+    'number.min': 'Номер квартиримає містити мінімум 1 символи',
+    'number.max': 'Номер квартири має містити максимум 3 символів',
+  }),
+
   role: Joi.string().valid('owner', 'admin').messages({
     'any.only': 'Роль має бути owner або admin ',
   }),

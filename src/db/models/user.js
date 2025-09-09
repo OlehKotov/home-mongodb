@@ -20,6 +20,10 @@ const usersSchema = new Schema(
       type: String,
       required: true,
     },
+    apartmentNumber: {
+      type: Number,
+      required: true,
+    },
     role: {
       type: String,
       enum: [ROLES.OWNER, ROLES.ADMIN],

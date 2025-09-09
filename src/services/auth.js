@@ -16,18 +16,62 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 
 import { getFullNameFromGoogleTokenPayload, validateCode } from '../utils/googleOAuth2.js';
+import { ApartmentCollection } from '../db/models/apartment.js';
+
 
 export const registerUser = async (payload) => {
-  const user = await UsersCollection.findOne({ email: payload.email });
-  if (user) throw createHttpError(409, 'Email in use');
+  const existingUser  = await UsersCollection.findOne({ email: payload.email });
+  if (existingUser ) throw createHttpError(409, 'Email in use');
+
+  let apartmentId = null;
+
+  if (payload.apartmentNumber) {
+    const apartment = await ApartmentCollection.findOne({
+      apartmentNumber: payload.apartmentNumber,
+      owner: null,
+    });
+
+    if (!apartment) {
+      throw createHttpError(
+        404,
+        'Apartment not found or already occupied'
+      );
+    }
+
+    apartmentId = apartment._id;
+  }
 
   const encryptedPassword = await bcrypt.hash(payload.password, 10);
 
-  return await UsersCollection.create({
+
+  const user = await UsersCollection.create({
     ...payload,
     password: encryptedPassword,
+    apartmentId,
   });
+
+  if (apartmentId) {
+    await ApartmentCollection.updateOne(
+      { _id: apartmentId },
+      { owner: user._id }
+    );
+  }
+
+  return user;
 };
+
+// export const assignApartmentOwner = async (userId, apartmentNumber) => {
+//   const apartment = await ApartmentCollection.findOne({ apartmentNumber });
+//   if (!apartment) throw createHttpError(404, 'Apartment not found');
+
+//   if (apartment.owner) throw createHttpError(400, 'Apartment already has an owner');
+
+//   apartment.owner = userId;
+//   await apartment.save();
+
+//   return apartment;
+// };
+
 
 export const loginUser = async (payload) => {
   const user = await UsersCollection.findOne({ email: payload.email });
