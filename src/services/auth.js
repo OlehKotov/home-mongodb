@@ -67,7 +67,6 @@ export const completeProfile = async (userId, payload) => {
     {
       name: payload.name,
       phone: payload.phone,
-      role: payload.role,
       ...(apartmentId && { apartmentId }),
     },
     { new: true },

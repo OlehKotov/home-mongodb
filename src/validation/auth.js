@@ -45,7 +45,7 @@ export const registerUserSchema = Joi.object({
     'string.email': 'Некоректний email',
     'string.empty': 'Email обовʼязковий',
   }),
- password: Joi.string().min(6).required().messages({
+  password: Joi.string().min(6).required().messages({
     'string.min': 'Пароль має бути мінімум 6 символів',
     'string.empty': 'Пароль обовʼязковий',
   }),
@@ -64,9 +64,6 @@ export const completeProfileSchema = Joi.object({
       'string.pattern.base': 'Телефон має бути у форматі +380XXXXXXXXX',
       'string.empty': 'Телефон обовʼязковий',
     }),
-  role: Joi.string().valid('owner', 'admin').messages({
-    'any.only': 'Роль має бути owner або admin ',
-  }),
   apartmentNumber: Joi.number().required(),
 });
 
