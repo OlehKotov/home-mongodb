@@ -1,20 +1,28 @@
 import { completeProfile, loginUser, logoutUser, registerUser, requestResetToken, resetPassword } from '../services/auth.js';
-import { ONE_DAY } from '../constants/index.js';
+import { FIFTEEN_MINUTES, ONE_DAY } from '../constants/index.js';
 import { generateAuthUrl } from '../utils/googleOAuth2.js';
 import { loginOrSignupWithGoogle } from '../services/auth.js';
+import { SessionsCollection } from '../db/models/session.js';
 
 
 export const registerUserController = async (req, res) => {
   const { user, accessToken } = await registerUser(req.body);
 
+  const session = await SessionsCollection.findOne({ userId: user._id });
+
   const { password, ...safeUser } = user.toObject();
+
+  res.cookie('sessionId', session._id, {
+    httpOnly: true,
+    expires: new Date(Date.now() + FIFTEEN_MINUTES),
+  });
 
   res.status(201).json({
     status: 201,
     message: 'Draft user created!',
     data: {
       ...safeUser,
-      accessToken,
+      accessToken: session.accessToken,
     },
   });
 };
