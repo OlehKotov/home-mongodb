@@ -10,7 +10,7 @@ const usersSchema = new Schema(
     email: {
       type: String,
       required: true,
-      unique: true 
+      unique: true,
     },
     phone: {
       type: String,
@@ -31,12 +31,12 @@ const usersSchema = new Schema(
     },
     apartmentId: {
       type: Schema.Types.ObjectId,
-      ref: 'Apartment',               
+      ref: 'Apartment',
       required: false,
-      default: null
+      default: null,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 usersSchema.methods.toJSON = function () {

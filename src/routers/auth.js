@@ -31,8 +31,8 @@ router.post(
 
 router.post(
   '/complete-profile',
-  authenticate, 
-  validateBody(completeProfileSchema), 
+  authenticate,
+  validateBody(completeProfileSchema),
   ctrlWrapper(completeProfileController),
 );
 

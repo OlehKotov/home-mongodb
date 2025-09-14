@@ -3,25 +3,19 @@ import { ONE_DAY } from '../constants/index.js';
 import { generateAuthUrl } from '../utils/googleOAuth2.js';
 import { loginOrSignupWithGoogle } from '../services/auth.js';
 
-// export const registerUserController = async (req, res) => {
-//   const user = await registerUser(req.body);
-
-//   res.status(201).json({
-//     status: 201,
-//     message: 'Successfully registered a user!',
-//     data: user,
-//   });
-// };
 
 export const registerUserController = async (req, res) => {
-  const user = await registerUser(req.body);
+  const { user, accessToken } = await registerUser(req.body);
 
   const { password, ...safeUser } = user.toObject();
 
   res.status(201).json({
     status: 201,
     message: 'Draft user created!',
-    data: safeUser,
+    data: {
+      ...safeUser,
+      accessToken,
+    },
   });
 };
 
@@ -40,10 +34,10 @@ export const completeProfileController = async (req, res) => {
 export const loginUserController = async (req, res) => {
   const session = await loginUser(req.body);
 
-  res.cookie('refreshToken', session.refreshToken, {
-    httpOnly: true,
-    expires: new Date(Date.now() + ONE_DAY),
-  });
+  // res.cookie('refreshToken', session.refreshToken, {
+  //   httpOnly: true,
+  //   expires: new Date(Date.now() + ONE_DAY),
+  // });
   res.cookie('sessionId', session._id, {
     httpOnly: true,
     expires: new Date(Date.now() + ONE_DAY),
@@ -64,7 +58,6 @@ export const logoutUserController = async (req, res) => {
   }
 
   res.clearCookie('sessionId');
-  res.clearCookie('refreshToken');
 
   res.status(204).send();
 };
@@ -101,10 +94,10 @@ export const getGoogleOAuthUrlController = async (req, res) => {
 export const loginWithGoogleController = async (req, res) => {
   const session = await loginOrSignupWithGoogle(req.body.code);
 
-   res.cookie('refreshToken', session.refreshToken, {
-    httpOnly: true,
-    expires: new Date(Date.now() + ONE_DAY),
-  });
+  //  res.cookie('refreshToken', session.refreshToken, {
+  //   httpOnly: true,
+  //   expires: new Date(Date.now() + ONE_DAY),
+  // });
   res.cookie('sessionId', session._id, {
     httpOnly: true,
     expires: new Date(Date.now() + ONE_DAY),

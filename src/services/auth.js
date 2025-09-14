@@ -8,57 +8,18 @@ import { SMTP, TEMPLATES_DIR } from '../constants/index.js';
 import { getEnvVar } from '../utils/getEnvVar.js';
 import { sendEmail } from '../utils/sendMail.js';
 
-import { FIFTEEN_MINUTES, ONE_DAY } from '../constants/index.js';
+import { FIFTEEN_MINUTES } from '../constants/index.js';
 import { SessionsCollection } from '../db/models/session.js';
 
 import handlebars from 'handlebars';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 
-import { getFullNameFromGoogleTokenPayload, validateCode } from '../utils/googleOAuth2.js';
+import {
+  getFullNameFromGoogleTokenPayload,
+  validateCode,
+} from '../utils/googleOAuth2.js';
 import { ApartmentCollection } from '../db/models/apartment.js';
-
-
-// export const registerUser = async (payload) => {
-//   const existingUser  = await UsersCollection.findOne({ email: payload.email });
-//   if (existingUser ) throw createHttpError(409, 'Email in use');
-
-//   let apartmentId = null;
-
-//   if (payload.apartmentNumber) {
-//     const apartment = await ApartmentCollection.findOne({
-//       apartmentNumber: payload.apartmentNumber,
-//       owner: null,
-//     });
-
-//     if (!apartment) {
-//       throw createHttpError(
-//         404,
-//         'Apartment not found or already occupied'
-//       );
-//     }
-
-//     apartmentId = apartment._id;
-//   }
-
-//   const encryptedPassword = await bcrypt.hash(payload.password, 10);
-
-
-//   const user = await UsersCollection.create({
-//     ...payload,
-//     password: encryptedPassword,
-//     apartmentId,
-//   });
-
-//   if (apartmentId) {
-//     await ApartmentCollection.updateOne(
-//       { _id: apartmentId },
-//       { owner: user._id }
-//     );
-//   }
-
-//   return user;
-// };
 
 export const registerUser = async (payload) => {
   const existingUser = await UsersCollection.findOne({ email: payload.email });
@@ -71,7 +32,18 @@ export const registerUser = async (payload) => {
     password: encryptedPassword,
   });
 
-  return user;
+  const accessToken = randomBytes(30).toString('base64');
+
+  await SessionsCollection.create({
+    userId: user._id,
+    accessToken,
+    accessTokenValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
+  });
+
+  return {
+    user,
+    accessToken,
+  };
 };
 
 export const completeProfile = async (userId, payload) => {
@@ -98,16 +70,19 @@ export const completeProfile = async (userId, payload) => {
       role: payload.role,
       ...(apartmentId && { apartmentId }),
     },
-    { new: true }
+    { new: true },
   );
 
   if (apartmentId) {
-    await ApartmentCollection.updateOne({ _id: apartmentId }, { owner: user._id });
+    await ApartmentCollection.findByIdAndUpdate(
+      apartmentId,
+      { $set: { owner: user._id } },
+      { new: true },
+    );
   }
 
   return user;
 };
-
 
 export const loginUser = async (payload) => {
   const user = await UsersCollection.findOne({ email: payload.email });
@@ -123,14 +98,11 @@ export const loginUser = async (payload) => {
   await SessionsCollection.deleteOne({ userId: user._id });
 
   const accessToken = randomBytes(30).toString('base64');
-  const refreshToken = randomBytes(30).toString('base64');
 
   return await SessionsCollection.create({
     userId: user._id,
     accessToken,
-    refreshToken,
     accessTokenValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
-    refreshTokenValidUntil: new Date(Date.now() + ONE_DAY),
   });
 };
 
@@ -226,17 +198,13 @@ export const loginOrSignupWithGoogle = async (code) => {
   //   ...newSession,
   // });
 
-   await SessionsCollection.deleteOne({ userId: user._id });
+  await SessionsCollection.deleteOne({ userId: user._id });
 
   const accessToken = randomBytes(30).toString('base64');
-  const refreshToken = randomBytes(30).toString('base64');
 
   return await SessionsCollection.create({
     userId: user._id,
     accessToken,
-    refreshToken,
     accessTokenValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
-    refreshTokenValidUntil: new Date(Date.now() + ONE_DAY),
   });
 };
-

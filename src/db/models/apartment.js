@@ -14,12 +14,12 @@ const apartmentSchema = new Schema(
       type: Number,
       required: true,
     },
-    ownerId: {  
-      type: Schema.Types.ObjectId, 
-      ref: 'users' 
-    },  
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: 'users',
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 export const ApartmentCollection = model('Apartment', apartmentSchema);

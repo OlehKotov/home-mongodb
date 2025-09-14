@@ -64,7 +64,7 @@ export const completeProfileSchema = Joi.object({
       'string.pattern.base': 'Телефон має бути у форматі +380XXXXXXXXX',
       'string.empty': 'Телефон обовʼязковий',
     }),
-  rrole: Joi.string().valid('owner', 'admin').messages({
+  role: Joi.string().valid('owner', 'admin').messages({
     'any.only': 'Роль має бути owner або admin ',
   }),
   apartmentNumber: Joi.number().required(),
