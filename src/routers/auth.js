@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { ctrlWrapper } from '../utils/ctrlWrapper.js';
 import {
+  completeProfileSchema,
   loginUserSchema,
   loginWithGoogleOAuthSchema,
   registerUserSchema,
@@ -8,6 +9,7 @@ import {
   resetPasswordSchema,
 } from '../validation/auth.js';
 import {
+  completeProfileController,
   loginUserController,
   loginWithGoogleController,
   logoutUserController,
@@ -26,11 +28,20 @@ router.post(
   validateBody(registerUserSchema),
   ctrlWrapper(registerUserController),
 );
+
+router.post(
+  '/complete-profile',
+  authenticate, 
+  validateBody(completeProfileSchema), 
+  ctrlWrapper(completeProfileController),
+);
+
 router.post(
   '/login',
   validateBody(loginUserSchema),
   ctrlWrapper(loginUserController),
 );
+
 router.post('/logout', authenticate, ctrlWrapper(logoutUserController));
 
 router.post(

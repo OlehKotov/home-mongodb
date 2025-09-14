@@ -5,7 +5,7 @@ const usersSchema = new Schema(
   {
     name: {
       type: String,
-      required: true,
+      required: false,
     },
     email: {
       type: String,
@@ -14,7 +14,7 @@ const usersSchema = new Schema(
     },
     phone: {
       type: String,
-      required: true,
+      required: false,
     },
     password: {
       type: String,
@@ -22,7 +22,7 @@ const usersSchema = new Schema(
     },
     apartmentNumber: {
       type: Number,
-      required: true,
+      required: false,
     },
     role: {
       type: String,
