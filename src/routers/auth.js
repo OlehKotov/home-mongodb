@@ -29,7 +29,7 @@ router.post(
   ctrlWrapper(registerUserController),
 );
 
-router.post(
+router.patch(
   '/complete-profile',
   authenticate,
   validateBody(completeProfileSchema),
