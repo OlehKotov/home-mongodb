@@ -1,9 +1,15 @@
-import { completeProfile, loginUser, logoutUser, registerUser, requestResetToken, resetPassword } from '../services/auth.js';
+import {
+  completeProfile,
+  loginUser,
+  logoutUser,
+  registerUser,
+  requestResetToken,
+  resetPassword,
+} from '../services/auth.js';
 import { FIFTEEN_MINUTES, ONE_DAY } from '../constants/index.js';
 import { generateAuthUrl } from '../utils/googleOAuth2.js';
 import { loginOrSignupWithGoogle } from '../services/auth.js';
 import { SessionsCollection } from '../db/models/session.js';
-
 
 export const registerUserController = async (req, res) => {
   const { user, accessToken } = await registerUser(req.body);
@@ -40,12 +46,12 @@ export const completeProfileController = async (req, res) => {
 };
 
 export const loginUserController = async (req, res) => {
-  const session = await loginUser(req.body);
+  const { user, accessToken } = await loginUser(req.body);
 
-  // res.cookie('refreshToken', session.refreshToken, {
-  //   httpOnly: true,
-  //   expires: new Date(Date.now() + ONE_DAY),
-  // });
+  const { password, ...safeUser } = user.toObject();
+
+  const session = await SessionsCollection.findOne({ userId: user._id });
+
   res.cookie('sessionId', session._id, {
     httpOnly: true,
     expires: new Date(Date.now() + ONE_DAY),
@@ -55,6 +61,7 @@ export const loginUserController = async (req, res) => {
     status: 200,
     message: 'Successfully logged in an user!',
     data: {
+      ...safeUser,
       accessToken: session.accessToken,
     },
   });
