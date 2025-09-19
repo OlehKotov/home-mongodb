@@ -1,21 +1,19 @@
 
+import createHttpError from 'http-errors';
 import { OAuth2Client } from 'google-auth-library';
 import path from 'node:path';
-// import { readFile } from 'fs/promises';
-import createHttpError from 'http-errors';
+import { readFile } from 'fs/promises';
+
 import { getEnvVar } from './getEnvVar.js';
 
+const PATH_JSON = path.join(process.cwd(), 'google-oauth.json');
 
-// const PATH_JSON = path.join(process.cwd(), 'google-oauth.json');
-const REDIRECT_URI = getEnvVar('GOOGLE_AUTH_REDIRECT_URI');
-
-// const oauthConfig = JSON.parse(await readFile(PATH_JSON));
+const oauthConfig = JSON.parse(await readFile(PATH_JSON));
 
 const googleOAuthClient = new OAuth2Client({
   clientId: getEnvVar('GOOGLE_AUTH_CLIENT_ID'),
   clientSecret: getEnvVar('GOOGLE_AUTH_CLIENT_SECRET'),
-  redirectUri: REDIRECT_URI,
-  // redirectUri: oauthConfig.web.redirect_uris[0],
+  redirectUri: oauthConfig.web.redirect_uris[0],
 });
 
 export const generateAuthUrl = () =>
@@ -25,7 +23,6 @@ export const generateAuthUrl = () =>
       'https://www.googleapis.com/auth/userinfo.profile',
     ],
   });
-
 
   export const validateCode = async (code) => {
   const response = await googleOAuthClient.getToken(code);
