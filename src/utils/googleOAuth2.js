@@ -1,14 +1,12 @@
-import { OAuth2Client } from 'google-auth-library';
-import path from 'node:path';
-import createHttpError from 'http-errors';
-import { getEnvVar } from './getEnvVar.js';
 
-const REDIRECT_URI = getEnvVar('GOOGLE_AUTH_REDIRECT_URI');
+import createHttpError from 'http-errors';
+import { OAuth2Client } from 'google-auth-library';
+import { getEnvVar } from './getEnvVar.js';
 
 const googleOAuthClient = new OAuth2Client({
   clientId: getEnvVar('GOOGLE_AUTH_CLIENT_ID'),
   clientSecret: getEnvVar('GOOGLE_AUTH_CLIENT_SECRET'),
-  redirectUri: REDIRECT_URI,
+  redirectUri: getEnvVar('GOOGLE_AUTH_REDIRECT_URI'),
 });
 
 export const generateAuthUrl = () =>

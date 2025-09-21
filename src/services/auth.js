@@ -197,7 +197,7 @@ export const loginOrSignupWithGoogle = async (code) => {
     });
   }
 
-  await SessionsCollection.deleteOne({ userId: user._id });
+  await SessionsCollection.deleteMany({ userId: user._id });
 
   const accessToken = randomBytes(30).toString('base64');
 
