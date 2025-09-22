@@ -111,9 +111,12 @@ export const getGoogleOAuthUrlController = async (req, res) => {
 export const loginWithGoogleController = async (req, res) => {
   const { session, user } = await loginOrSignupWithGoogle(req.body.code);
 
-  res.cookie('sessionId', session._id, {
+  res.cookie("sessionId", session._id.toString(), {
     httpOnly: true,
+    secure: true,        
+    sameSite: "none",     
     expires: new Date(Date.now() + ONE_DAY),
+    path: "/",            
   });
 
   const { password, __v, createdAt, updatedAt, ...safeUser } = user.toObject();
