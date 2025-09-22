@@ -19,7 +19,7 @@ router.use(authenticate);
 router.get('/', checkRoles(ROLES.ADMIN),  ctrlWrapper(getUsersController));
 router.get('/:userId', checkRoles(ROLES.ADMIN),  isValidId, ctrlWrapper(getUserByIdController));
 
-router.delete('/:userId', checkRoles(ROLES.ADMIN),  isValidId, ctrlWrapper(deleteUserController));
+router.delete('/:userId', checkRoles(ROLES.ADMIN, ROLES.OWNER),  isValidId, ctrlWrapper(deleteUserController));
 router.patch(
   '/:userId',
   checkRoles(ROLES.ADMIN, ROLES.OWNER), 
