@@ -52,9 +52,12 @@ export const loginUserController = async (req, res) => {
 
   const session = await SessionsCollection.findOne({ userId: user._id });
 
-  res.cookie('sessionId', session._id, {
+  res.cookie("sessionId", session._id.toString(), {
     httpOnly: true,
+    secure: true,        
+    sameSite: "none",     
     expires: new Date(Date.now() + ONE_DAY),
+    path: "/",            
   });
 
   res.json({
