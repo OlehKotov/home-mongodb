@@ -67,44 +67,13 @@ export const loginUserController = async (req, res) => {
   });
 };
 
-// export const logoutUserController = async (req, res) => {
-//   if (req.cookies.sessionId) {
-//     await logoutUser(req.cookies.sessionId);
-//   }
-
-//   res.clearCookie('sessionId');
-
-//   res.status(204).send();
-// };
-
-// export const logoutUserController = async (req, res) => {
-//   try {
-//     const sessionId = req.cookies.sessionId;
-//     console.log(sessionId);
-    
-//     if (sessionId) {
-//       await SessionsCollection.deleteOne({ _id: sessionId });
-//     }
-
-//     res.clearCookie('sessionId', { httpOnly: true, sameSite: 'strict' });
-//     res.status(204).send();
-//   } catch (error) {
-//     res.status(500).json({ message: 'Failed to logout' });
-//   }
-// };
-
 export const logoutUserController = async (req, res) => {
-  try {
-    const { sessionId } = req.body;
-    if (sessionId) {
-      await SessionsCollection.deleteOne({ _id: sessionId });
-    }
-
-    res.clearCookie('sessionId', { httpOnly: true, sameSite: 'strict' });
-    res.status(204).send();
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to logout' });
+  if (req.cookies.sessionId) {
+    await logoutUser(req.cookies.sessionId);
   }
+
+  res.clearCookie('sessionId');
+  res.status(204).send();
 };
 
 export const requestResetEmailController = async (req, res) => {
