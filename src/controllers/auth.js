@@ -14,13 +14,16 @@ import { SessionsCollection } from '../db/models/session.js';
 export const registerUserController = async (req, res) => {
   const { user, accessToken } = await registerUser(req.body);
 
+  const { password, __v, createdAt, updatedAt, ...safeUser } = user.toObject();
+
   const session = await SessionsCollection.findOne({ userId: user._id });
 
-  const { password, ...safeUser } = user.toObject();
-
-  res.cookie('sessionId', session._id, {
+  res.cookie('sessionId', session._id.toString(), {
     httpOnly: true,
-    expires: new Date(Date.now() + FIFTEEN_MINUTES),
+    secure: true,
+    sameSite: 'none',
+    expires: new Date(Date.now() + ONE_DAY),
+    path: '/',
   });
 
   res.status(201).json({
@@ -52,12 +55,12 @@ export const loginUserController = async (req, res) => {
 
   const session = await SessionsCollection.findOne({ userId: user._id });
 
-  res.cookie("sessionId", session._id.toString(), {
+  res.cookie('sessionId', session._id.toString(), {
     httpOnly: true,
-    secure: true,        
-    sameSite: "none",     
+    secure: true,
+    sameSite: 'none',
     expires: new Date(Date.now() + ONE_DAY),
-    path: "/",            
+    path: '/',
   });
 
   res.json({
@@ -77,9 +80,9 @@ export const logoutUserController = async (req, res) => {
 
   res.clearCookie('sessionId', {
     httpOnly: true,
-    secure: true,      
-    sameSite: 'none',  
-    path: '/',        
+    secure: true,
+    sameSite: 'none',
+    path: '/',
   });
 
   res.status(204).send();
@@ -117,12 +120,12 @@ export const getGoogleOAuthUrlController = async (req, res) => {
 export const loginWithGoogleController = async (req, res) => {
   const { session, user } = await loginOrSignupWithGoogle(req.body.code);
 
-  res.cookie("sessionId", session._id.toString(), {
+  res.cookie('sessionId', session._id.toString(), {
     httpOnly: true,
-    secure: true,        
-    sameSite: "none",     
+    secure: true,
+    sameSite: 'none',
     expires: new Date(Date.now() + ONE_DAY),
-    path: "/",            
+    path: '/',
   });
 
   const { password, __v, createdAt, updatedAt, ...safeUser } = user.toObject();

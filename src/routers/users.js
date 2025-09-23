@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { ctrlWrapper } from '../utils/ctrlWrapper.js';
 import {
   deleteUserController,
+  deleteUserControllerAndLogout,
   getUserByIdController,
   getUsersController,
   patchUserController,
@@ -16,13 +17,31 @@ import { ROLES } from '../constants/index.js';
 const router = Router();
 router.use(authenticate);
 
-router.get('/', checkRoles(ROLES.ADMIN),  ctrlWrapper(getUsersController));
-router.get('/:userId', checkRoles(ROLES.ADMIN),  isValidId, ctrlWrapper(getUserByIdController));
+router.get('/', checkRoles(ROLES.ADMIN), ctrlWrapper(getUsersController));
+router.get(
+  '/:userId',
+  checkRoles(ROLES.ADMIN),
+  isValidId,
+  ctrlWrapper(getUserByIdController),
+);
 
-router.delete('/:userId', checkRoles(ROLES.ADMIN, ROLES.OWNER),  isValidId, ctrlWrapper(deleteUserController));
+router.delete(
+  '/:userId',
+  checkRoles(ROLES.ADMIN, ROLES.OWNER),
+  isValidId,
+  ctrlWrapper(deleteUserController),
+);
+
+router.delete(
+  '/me/:userId',
+  checkRoles(ROLES.OWNER),
+  isValidId,
+  ctrlWrapper(deleteUserControllerAndLogout),
+);
+
 router.patch(
   '/:userId',
-  checkRoles(ROLES.ADMIN, ROLES.OWNER), 
+  checkRoles(ROLES.ADMIN, ROLES.OWNER),
   isValidId,
   validateBody(updateUserSchema),
   ctrlWrapper(patchUserController),

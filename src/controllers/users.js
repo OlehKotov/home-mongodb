@@ -7,6 +7,7 @@ import {
 import createHttpError from 'http-errors';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseUserSortParams } from '../utils/parseUserSortParams.js';
+import { logoutUser } from '../services/auth.js';
 
 export const getUsersController = async (req, res) => {
   const { page, perPage } = parsePaginationParams(req.query);
@@ -38,6 +39,29 @@ export const getUserByIdController = async (req, res, next) => {
     message: `Successfully found user with id ${userId}!`,
     data: user,
   });
+};
+
+export const deleteUserControllerAndLogout = async (req, res, next) => {
+  const { userId } = req.params;
+
+  const user = await deleteUser(userId);
+
+  if (!user) {
+    next(createHttpError(404, 'User not found'));
+    return;
+  }
+  if (req.cookies.sessionId) {
+    await logoutUser(req.cookies.sessionId);
+  }
+
+  res.clearCookie('sessionId', {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'none',
+    path: '/',
+  });
+
+  res.status(204).send();
 };
 
 export const deleteUserController = async (req, res, next) => {
