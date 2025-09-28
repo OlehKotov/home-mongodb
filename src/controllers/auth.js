@@ -10,6 +10,7 @@ import { ONE_DAY } from '../constants/index.js';
 import { generateAuthUrl } from '../utils/googleOAuth2.js';
 import { loginOrSignupWithGoogle } from '../services/auth.js';
 import { SessionsCollection } from '../db/models/session.js';
+import createHttpError from 'http-errors';
 
 // export const registerUserController = async (req, res) => {
 //   const { user, accessToken } = await registerUser(req.body);
@@ -48,27 +49,59 @@ import { SessionsCollection } from '../db/models/session.js';
 //   });
 // };
 
-export const registerUserController = async (req, res) => {
-  const { user, session } = await registerUser(req.body);
+// export const registerUserController = async (req, res) => {
+//   const { user, session } = await registerUser(req.body);
 
-  const { password, __v, createdAt, updatedAt, ...safeUser } = user.toObject();
+//   const { password, __v, createdAt, updatedAt, ...safeUser } = user.toObject();
 
-  res.cookie("sessionId", session._id.toString(), {
-    httpOnly: true,
-    secure: true,
-    sameSite: "none",
-    expires: new Date(Date.now() + ONE_DAY),
-    path: "/",
-  });
+//   res.cookie("sessionId", session._id.toString(), {
+//     httpOnly: true,
+//     secure: true,
+//     sameSite: "none",
+//     expires: new Date(Date.now() + ONE_DAY),
+//     path: "/",
+//   });
 
-  res.status(201).json({
-    status: 201,
-    message: "User registered successfully!",
-    data: {
-      ...safeUser,
-      accessToken: session.accessToken,
-    },
-  });
+//   res.status(201).json({
+//     status: 201,
+//     message: "User registered successfully!",
+//     data: {
+//       ...safeUser,
+//       accessToken: session.accessToken,
+//     },
+//   });
+// };
+
+export const registerUserController = async (req, res, next) => {
+  try {
+    const { user, session } = await registerUser(req.body);
+
+    const { password, __v, createdAt, updatedAt, ...safeUser } = user.toObject();
+
+    // Ставим cookie для сессии
+    res.cookie("sessionId", session._id.toString(), {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      expires: new Date(Date.now() + ONE_DAY),
+      path: "/",
+    });
+
+    res.status(201).json({
+      status: 201,
+      message: "User registered successfully!",
+      data: {
+        ...safeUser,
+        accessToken: session.accessToken,
+      },
+    });
+  } catch (err) {
+    if (err.status && err.message) {
+      return res.status(err.status).json({ message: err.message });
+    }
+  
+    next(createHttpError(500, "Internal Server Error"));
+  }
 };
 
 export const loginUserController = async (req, res) => {
