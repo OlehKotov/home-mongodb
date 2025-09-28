@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { ctrlWrapper } from '../utils/ctrlWrapper.js';
 import {
-  completeProfileSchema,
+  // completeProfileSchema,
   loginUserSchema,
   loginWithGoogleOAuthSchema,
   registerUserSchema,
@@ -9,7 +9,7 @@ import {
   resetPasswordSchema,
 } from '../validation/auth.js';
 import {
-  completeProfileController,
+  // completeProfileController,
   loginUserController,
   loginWithGoogleController,
   logoutUserController,
@@ -24,17 +24,23 @@ import { getGoogleOAuthUrlController } from '../controllers/auth.js';
 const router = Router();
 
 router.post(
-  '/register',
+  "/register",
   validateBody(registerUserSchema),
-  ctrlWrapper(registerUserController),
+  ctrlWrapper(registerUserController)
 );
 
-router.patch(
-  '/complete-profile',
-  authenticate,
-  validateBody(completeProfileSchema),
-  ctrlWrapper(completeProfileController),
-);
+// router.post(
+//   '/register',
+//   validateBody(registerUserSchema),
+//   ctrlWrapper(registerUserController),
+// );
+
+// router.patch(
+//   '/complete-profile',
+//   authenticate,
+//   validateBody(completeProfileSchema),
+//   ctrlWrapper(completeProfileController),
+// );
 
 router.post(
   '/login',

@@ -7,14 +7,11 @@ import jwt from 'jsonwebtoken';
 import { SMTP, TEMPLATES_DIR } from '../constants/index.js';
 import { getEnvVar } from '../utils/getEnvVar.js';
 import { sendEmail } from '../utils/sendMail.js';
-
 import { FIFTEEN_MINUTES } from '../constants/index.js';
 import { SessionsCollection } from '../db/models/session.js';
-
 import handlebars from 'handlebars';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-
 import {
   getFullNameFromGoogleTokenPayload,
   validateCode,
@@ -23,30 +20,10 @@ import { ApartmentCollection } from '../db/models/apartment.js';
 
 export const registerUser = async (payload) => {
   const existingUser = await UsersCollection.findOne({ email: payload.email });
-  if (existingUser) throw createHttpError(409, 'Email in use');
+  if (existingUser) throw createHttpError(409, "Email in use");
 
   const encryptedPassword = await bcrypt.hash(payload.password, 10);
 
-  const user = await UsersCollection.create({
-    email: payload.email,
-    password: encryptedPassword,
-  });
-
-  const accessToken = randomBytes(30).toString('base64');
-
-  await SessionsCollection.create({
-    userId: user._id,
-    accessToken,
-    accessTokenValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
-  });
-
-  return {
-    user,
-    accessToken,
-  };
-};
-
-export const completeProfile = async (userId, payload) => {
   let apartmentId = null;
 
   if (payload.apartmentNumber) {
@@ -56,33 +33,100 @@ export const completeProfile = async (userId, payload) => {
     });
 
     if (!apartment) {
-      throw createHttpError(404, 'Apartment not found or already occupied');
+      throw createHttpError(404, "Apartment not found or already occupied");
     }
 
     apartmentId = apartment._id;
   }
 
-  const user = await UsersCollection.findByIdAndUpdate(
-    userId,
-    {
-      name: payload.name,
-      phone: payload.phone,
-
-      ...(apartmentId && { apartmentId }),
-    },
-    { new: true },
-  );
+  const user = await UsersCollection.create({
+    email: payload.email,
+    password: encryptedPassword,
+    name: payload.name,
+    phone: payload.phone,
+    ...(apartmentId && { apartmentId }),
+  });
 
   if (apartmentId) {
-    await ApartmentCollection.findByIdAndUpdate(
-      apartmentId,
-      { $set: { owner: user._id } },
-      { new: true },
-    );
+    await ApartmentCollection.findByIdAndUpdate(apartmentId, {
+      $set: { owner: user._id },
+    });
   }
 
-  return user;
+  const accessToken = randomBytes(30).toString("base64");
+
+  const session = await SessionsCollection.create({
+    userId: user._id,
+    accessToken,
+    accessTokenValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
+  });
+
+  return { user, session };
 };
+
+
+// export const registerUser = async (payload) => {
+//   const existingUser = await UsersCollection.findOne({ email: payload.email });
+//   if (existingUser) throw createHttpError(409, 'Email in use');
+
+//   const encryptedPassword = await bcrypt.hash(payload.password, 10);
+
+//   const user = await UsersCollection.create({
+//     email: payload.email,
+//     password: encryptedPassword,
+//   });
+
+//   const accessToken = randomBytes(30).toString('base64');
+
+//   await SessionsCollection.create({
+//     userId: user._id,
+//     accessToken,
+//     accessTokenValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
+//   });
+
+//   return {
+//     user,
+//     accessToken,
+//   };
+// };
+
+// export const completeProfile = async (userId, payload) => {
+//   let apartmentId = null;
+
+//   if (payload.apartmentNumber) {
+//     const apartment = await ApartmentCollection.findOne({
+//       apartmentNumber: payload.apartmentNumber,
+//       owner: null,
+//     });
+
+//     if (!apartment) {
+//       throw createHttpError(404, 'Apartment not found or already occupied');
+//     }
+
+//     apartmentId = apartment._id;
+//   }
+
+//   const user = await UsersCollection.findByIdAndUpdate(
+//     userId,
+//     {
+//       name: payload.name,
+//       phone: payload.phone,
+
+//       ...(apartmentId && { apartmentId }),
+//     },
+//     { new: true },
+//   );
+
+//   if (apartmentId) {
+//     await ApartmentCollection.findByIdAndUpdate(
+//       apartmentId,
+//       { $set: { owner: user._id } },
+//       { new: true },
+//     );
+//   }
+
+//   return user;
+// };
 
 export const loginUser = async (payload) => {
   const user = await UsersCollection.findOne({ email: payload.email });

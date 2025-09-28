@@ -1,50 +1,73 @@
 import {
-  completeProfile,
+  // completeProfile,
   loginUser,
   logoutUser,
   registerUser,
   requestResetToken,
   resetPassword,
 } from '../services/auth.js';
-import { FIFTEEN_MINUTES, ONE_DAY } from '../constants/index.js';
+import { ONE_DAY } from '../constants/index.js';
 import { generateAuthUrl } from '../utils/googleOAuth2.js';
 import { loginOrSignupWithGoogle } from '../services/auth.js';
 import { SessionsCollection } from '../db/models/session.js';
 
+// export const registerUserController = async (req, res) => {
+//   const { user, accessToken } = await registerUser(req.body);
+
+//   const { password, __v, createdAt, updatedAt, ...safeUser } = user.toObject();
+
+//   const session = await SessionsCollection.findOne({ userId: user._id });
+
+//   res.cookie('sessionId', session._id.toString(), {
+//     httpOnly: true,
+//     secure: true,
+//     sameSite: 'none',
+//     expires: new Date(Date.now() + ONE_DAY),
+//     path: '/',
+//   });
+
+//   res.status(201).json({
+//     status: 201,
+//     message: 'Draft user created!',
+//     data: {
+//       ...safeUser,
+//       accessToken: session.accessToken,
+//     },
+//   });
+// };
+
+// export const completeProfileController = async (req, res) => {
+//   const user = await completeProfile(req.user._id, req.body);
+
+//   const { password, ...safeUser } = user.toObject();
+
+//   res.status(200).json({
+//     status: 200,
+//     message: 'Profile completed!',
+//     data: safeUser,
+//   });
+// };
+
 export const registerUserController = async (req, res) => {
-  const { user, accessToken } = await registerUser(req.body);
+  const { user, session } = await registerUser(req.body);
 
   const { password, __v, createdAt, updatedAt, ...safeUser } = user.toObject();
 
-  const session = await SessionsCollection.findOne({ userId: user._id });
-
-  res.cookie('sessionId', session._id.toString(), {
+  res.cookie("sessionId", session._id.toString(), {
     httpOnly: true,
     secure: true,
-    sameSite: 'none',
+    sameSite: "none",
     expires: new Date(Date.now() + ONE_DAY),
-    path: '/',
+    path: "/",
   });
 
   res.status(201).json({
     status: 201,
-    message: 'Draft user created!',
+    message: "User registered successfully!",
     data: {
       ...safeUser,
       accessToken: session.accessToken,
     },
-  });
-};
-
-export const completeProfileController = async (req, res) => {
-  const user = await completeProfile(req.user._id, req.body);
-
-  const { password, ...safeUser } = user.toObject();
-
-  res.status(200).json({
-    status: 200,
-    message: 'Profile completed!',
-    data: safeUser,
   });
 };
 
