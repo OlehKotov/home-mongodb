@@ -5,7 +5,7 @@ import {
   requestResetToken,
   resetPassword,
 } from '../services/auth.js';
-import { ONE_DAY } from '../constants/index.js';
+import { FIFTEEN_MINUTES, ONE_DAY } from '../constants/index.js';
 import { generateAuthUrl } from '../utils/googleOAuth2.js';
 import { loginOrSignupWithGoogle } from '../services/auth.js';
 import createHttpError from 'http-errors';
@@ -21,7 +21,7 @@ export const registerUserController = async (req, res, next) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: ONE_DAY,
+      maxAge: FIFTEEN_MINUTES,
       path: '/',
     });
 
@@ -49,7 +49,7 @@ export const loginUserController = async (req, res, next) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: ONE_DAY,
+      maxAge: FIFTEEN_MINUTES,
       path: '/',
     });
 
@@ -77,7 +77,7 @@ export const loginWithGoogleController = async (req, res, next) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: ONE_DAY,
+      maxAge: FIFTEEN_MINUTES,
       path: '/',
     });
 
