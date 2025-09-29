@@ -8,138 +8,114 @@ import {
 import { ONE_DAY } from '../constants/index.js';
 import { generateAuthUrl } from '../utils/googleOAuth2.js';
 import { loginOrSignupWithGoogle } from '../services/auth.js';
-import { SessionsCollection } from '../db/models/session.js';
 import createHttpError from 'http-errors';
-
-// export const registerUserController = async (req, res) => {
-//   const { user, accessToken } = await registerUser(req.body);
-
-//   const { password, __v, createdAt, updatedAt, ...safeUser } = user.toObject();
-
-//   const session = await SessionsCollection.findOne({ userId: user._id });
-
-//   res.cookie('sessionId', session._id.toString(), {
-//     httpOnly: true,
-//     secure: true,
-//     sameSite: 'none',
-//     expires: new Date(Date.now() + ONE_DAY),
-//     path: '/',
-//   });
-
-//   res.status(201).json({
-//     status: 201,
-//     message: 'Draft user created!',
-//     data: {
-//       ...safeUser,
-//       accessToken: session.accessToken,
-//     },
-//   });
-// };
-
-// export const completeProfileController = async (req, res) => {
-//   const user = await completeProfile(req.user._id, req.body);
-
-//   const { password, ...safeUser } = user.toObject();
-
-//   res.status(200).json({
-//     status: 200,
-//     message: 'Profile completed!',
-//     data: safeUser,
-//   });
-// };
-
-// export const registerUserController = async (req, res) => {
-//   const { user, session } = await registerUser(req.body);
-
-//   const { password, __v, createdAt, updatedAt, ...safeUser } = user.toObject();
-
-//   res.cookie("sessionId", session._id.toString(), {
-//     httpOnly: true,
-//     secure: true,
-//     sameSite: "none",
-//     expires: new Date(Date.now() + ONE_DAY),
-//     path: "/",
-//   });
-
-//   res.status(201).json({
-//     status: 201,
-//     message: "User registered successfully!",
-//     data: {
-//       ...safeUser,
-//       accessToken: session.accessToken,
-//     },
-//   });
-// };
 
 export const registerUserController = async (req, res, next) => {
   try {
     const { user, session } = await registerUser(req.body);
 
-    const { password, __v, createdAt, updatedAt, ...safeUser } = user.toObject();
+    const { password, __v, createdAt, updatedAt, ...safeUser } =
+      user.toObject();
 
-    res.cookie("sessionId", session._id.toString(), {
+    res.cookie('sessionId', session._id.toString(), {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      expires: new Date(Date.now() + ONE_DAY),
-      path: "/",
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: ONE_DAY,
+      path: '/',
     });
 
     res.status(201).json({
       status: 201,
-      message: "User registered successfully!",
-      data: {
-        ...safeUser,
-        accessToken: session.accessToken,
-      },
+      message: 'User registered successfully!',
+      data: safeUser,
     });
-  } catch (err) {
-    if (err.status && err.message) {
-      return res.status(err.status).json({ message: err.message });
+  } catch (error) {
+    if (error.status && error.message) {
+      return res.status(error.status).json({ message: error.message });
     }
-  
-    next(createHttpError(500, "Internal Server Error"));
+    next(createHttpError(500, 'Internal Server Error'));
   }
 };
 
-export const loginUserController = async (req, res) => {
-  const { user, accessToken } = await loginUser(req.body);
+export const loginUserController = async (req, res, next) => {
+  try {
+    const { user, session } = await loginUser(req.body);
 
-  const { password, __v, createdAt, updatedAt, ...safeUser } = user.toObject();
+    const { password, __v, createdAt, updatedAt, ...safeUser } =
+      user.toObject();
 
-  const session = await SessionsCollection.findOne({ userId: user._id });
+    res.cookie('sessionId', session._id.toString(), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: ONE_DAY,
+      path: '/',
+    });
 
-  res.cookie('sessionId', session._id.toString(), {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-    expires: new Date(Date.now() + ONE_DAY),
-    path: '/',
-  });
-
-  res.json({
-    status: 200,
-    message: 'Successfully logged in an user!',
-    data: {
-      ...safeUser,
-      accessToken: session.accessToken,
-    },
-  });
+    res.json({
+      status: 200,
+      message: 'Successfully logged in an user!',
+      data: safeUser,
+    });
+  } catch (error) {
+    if (error.status && error.message) {
+      return res.status(error.status).json({ message: error.message });
+    }
+    next(createHttpError(500, 'Internal Server Error'));
+  }
 };
 
-export const logoutUserController = async (req, res) => {
-  if (req.cookies.sessionId) {
-    await logoutUser(req.cookies.sessionId);
+export const loginWithGoogleController = async (req, res, next) => {
+  try {
+    const { user, session } = await loginOrSignupWithGoogle(req.body.code);
+
+    const { password, __v, createdAt, updatedAt, ...safeUser } =
+      user.toObject();
+
+    res.cookie('sessionId', session._id.toString(), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: ONE_DAY,
+      path: '/',
+    });
+
+    res.json({
+      status: 200,
+      message: 'Successfully logged in via Google OAuth!',
+      data: safeUser,
+    });
+  } catch (error) {
+    if (error.status && error.message) {
+      return res.status(error.status).json({ message: error.message });
+    }
+    next(createHttpError(500, 'Internal Server Error'));
   }
+};
 
-  res.clearCookie('sessionId', {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-    path: '/',
-  });
+export const logoutUserController = async (req, res, next) => {
+  try {
+    const sessionId = req.cookies?.sessionId;
 
-  res.status(204).send();
+    if (sessionId) {
+      await logoutUser(sessionId);
+    }
+
+    res.clearCookie('sessionId', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+    });
+
+    res.status(204).send();
+  } catch (error) {
+    if (error.status && error.message) {
+      return res.status(error.status).json({ message: error.message });
+    }
+    next(createHttpError(500, 'Internal Server Error'));
+  }
 };
 
 export const requestResetEmailController = async (req, res) => {
@@ -167,29 +143,6 @@ export const getGoogleOAuthUrlController = async (req, res) => {
     message: 'Successfully get Google OAuth url!',
     data: {
       url,
-    },
-  });
-};
-
-export const loginWithGoogleController = async (req, res) => {
-  const { session, user } = await loginOrSignupWithGoogle(req.body.code);
-
-  res.cookie('sessionId', session._id.toString(), {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-    expires: new Date(Date.now() + ONE_DAY),
-    path: '/',
-  });
-
-  const { password, __v, createdAt, updatedAt, ...safeUser } = user.toObject();
-
-  res.json({
-    status: 200,
-    message: 'Successfully logged in via Google OAuth!',
-    data: {
-      ...safeUser,
-      accessToken: session.accessToken,
     },
   });
 };

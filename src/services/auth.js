@@ -3,7 +3,6 @@ import bcrypt from 'bcrypt';
 import createHttpError from 'http-errors';
 import { randomBytes } from 'crypto';
 import jwt from 'jsonwebtoken';
-
 import { SMTP, TEMPLATES_DIR } from '../constants/index.js';
 import { getEnvVar } from '../utils/getEnvVar.js';
 import { sendEmail } from '../utils/sendMail.js';
@@ -20,7 +19,7 @@ import { ApartmentCollection } from '../db/models/apartment.js';
 
 export const registerUser = async (payload) => {
   const existingUser = await UsersCollection.findOne({ email: payload.email });
-  if (existingUser) throw createHttpError(409, "Email in use");
+  if (existingUser) throw createHttpError(409, 'Email in use');
 
   const encryptedPassword = await bcrypt.hash(payload.password, 10);
 
@@ -33,7 +32,7 @@ export const registerUser = async (payload) => {
     });
 
     if (!apartment) {
-      throw createHttpError(404, "Apartment not found or already occupied");
+      throw createHttpError(404, 'Apartment not found or already occupied');
     }
 
     apartmentId = apartment._id;
@@ -53,80 +52,16 @@ export const registerUser = async (payload) => {
     });
   }
 
-  const accessToken = randomBytes(30).toString("base64");
+  const accessToken = randomBytes(30).toString('base64');
 
   const session = await SessionsCollection.create({
     userId: user._id,
     accessToken,
-    accessTokenValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
+    sessionValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
   });
 
   return { user, session };
 };
-
-
-// export const registerUser = async (payload) => {
-//   const existingUser = await UsersCollection.findOne({ email: payload.email });
-//   if (existingUser) throw createHttpError(409, 'Email in use');
-
-//   const encryptedPassword = await bcrypt.hash(payload.password, 10);
-
-//   const user = await UsersCollection.create({
-//     email: payload.email,
-//     password: encryptedPassword,
-//   });
-
-//   const accessToken = randomBytes(30).toString('base64');
-
-//   await SessionsCollection.create({
-//     userId: user._id,
-//     accessToken,
-//     accessTokenValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
-//   });
-
-//   return {
-//     user,
-//     accessToken,
-//   };
-// };
-
-// export const completeProfile = async (userId, payload) => {
-//   let apartmentId = null;
-
-//   if (payload.apartmentNumber) {
-//     const apartment = await ApartmentCollection.findOne({
-//       apartmentNumber: payload.apartmentNumber,
-//       owner: null,
-//     });
-
-//     if (!apartment) {
-//       throw createHttpError(404, 'Apartment not found or already occupied');
-//     }
-
-//     apartmentId = apartment._id;
-//   }
-
-//   const user = await UsersCollection.findByIdAndUpdate(
-//     userId,
-//     {
-//       name: payload.name,
-//       phone: payload.phone,
-
-//       ...(apartmentId && { apartmentId }),
-//     },
-//     { new: true },
-//   );
-
-//   if (apartmentId) {
-//     await ApartmentCollection.findByIdAndUpdate(
-//       apartmentId,
-//       { $set: { owner: user._id } },
-//       { new: true },
-//     );
-//   }
-
-//   return user;
-// };
 
 export const loginUser = async (payload) => {
   const user = await UsersCollection.findOne({ email: payload.email });
@@ -139,21 +74,47 @@ export const loginUser = async (payload) => {
     throw createHttpError(401, 'Unauthorized');
   }
 
-  await SessionsCollection.deleteOne({ userId: user._id });
+  await SessionsCollection.deleteMany({ userId: user._id });
 
   const accessToken = randomBytes(30).toString('base64');
 
   const session = await SessionsCollection.create({
     userId: user._id,
     accessToken,
-    accessTokenValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
+    sessionValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
   });
 
-  return {
-    user,
-    accessToken: session.accessToken,
-    sessionId: session._id,
-  };
+  console.log('Created session:', session);
+
+  return { user, session };
+};
+
+export const loginOrSignupWithGoogle = async (code) => {
+  const loginTicket = await validateCode(code);
+  const payload = loginTicket.getPayload();
+  if (!payload) throw createHttpError(401);
+
+  let user = await UsersCollection.findOne({ email: payload.email });
+  if (!user) {
+    const password = await bcrypt.hash(randomBytes(10), 10);
+    user = await UsersCollection.create({
+      email: payload.email,
+      name: getFullNameFromGoogleTokenPayload(payload),
+      password,
+    });
+  }
+
+  await SessionsCollection.deleteMany({ userId: user._id });
+
+  const accessToken = randomBytes(30).toString('base64');
+
+  const session = await SessionsCollection.create({
+    userId: user._id,
+    accessToken,
+    sessionValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
+  });
+
+  return { session, user };
 };
 
 export const logoutUser = async (sessionId) => {
@@ -224,32 +185,4 @@ export const resetPassword = async (payload) => {
     { _id: user._id },
     { password: encryptedPassword },
   );
-};
-
-export const loginOrSignupWithGoogle = async (code) => {
-  const loginTicket = await validateCode(code);
-  const payload = loginTicket.getPayload();
-  if (!payload) throw createHttpError(401);
-
-  let user = await UsersCollection.findOne({ email: payload.email });
-  if (!user) {
-    const password = await bcrypt.hash(randomBytes(10), 10);
-    user = await UsersCollection.create({
-      email: payload.email,
-      name: getFullNameFromGoogleTokenPayload(payload),
-      password,
-    });
-  }
-
-  await SessionsCollection.deleteMany({ userId: user._id });
-
-  const accessToken = randomBytes(30).toString('base64');
-
-  const session = await SessionsCollection.create({
-    userId: user._id,
-    accessToken,
-    accessTokenValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
-  });
-
-  return { session, user };
 };
