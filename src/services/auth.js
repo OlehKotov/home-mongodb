@@ -84,8 +84,6 @@ export const loginUser = async (payload) => {
     sessionValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
   });
 
-  console.log('Created session:', session);
-
   return { user, session };
 };
 
