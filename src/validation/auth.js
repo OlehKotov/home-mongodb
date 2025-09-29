@@ -9,7 +9,7 @@ export const registerUserSchema = Joi.object({
     'string.min': 'Password must be at least 6 characters',
     'string.empty': 'Password is required',
   }),
-   name: Joi.string().min(3).max(30).required().messages({
+  name: Joi.string().min(3).max(30).required().messages({
     'string.empty': 'Name is required',
     'string.min': 'Name must be at least 2 characters',
     'string.max': 'he name must be no more than 30 characters.',
@@ -23,22 +23,6 @@ export const registerUserSchema = Joi.object({
     }),
   apartmentNumber: Joi.number().required(),
 });
-
-// export const completeProfileSchema = Joi.object({
-//   name: Joi.string().min(3).max(30).required().messages({
-//     'string.empty': 'Name is required',
-//     'string.min': 'Name must be at least 2 characters',
-//     'string.max': 'he name must be no more than 30 characters.',
-//   }),
-//   phone: Joi.string()
-//     .pattern(/^\+380\d{9}$/)
-//     .required()
-//     .messages({
-//       'string.pattern.base': 'Phone must be in format +380XXXXXXXXX',
-//       'string.empty': 'Phone is required',
-//     }),
-//   apartmentNumber: Joi.number().required(),
-// });
 
 export const loginUserSchema = Joi.object({
   email: Joi.string().email().required(),

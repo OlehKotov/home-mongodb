@@ -1,5 +1,4 @@
 import {
-  // completeProfile,
   loginUser,
   logoutUser,
   registerUser,
@@ -78,7 +77,6 @@ export const registerUserController = async (req, res, next) => {
 
     const { password, __v, createdAt, updatedAt, ...safeUser } = user.toObject();
 
-    // Ставим cookie для сессии
     res.cookie("sessionId", session._id.toString(), {
       httpOnly: true,
       secure: true,
