@@ -5,7 +5,7 @@ import {
   requestResetToken,
   resetPassword,
 } from '../services/auth.js';
-import { FIFTEEN_MINUTES, ONE_DAY } from '../constants/index.js';
+import { FIFTEEN_MINUTES } from '../constants/index.js';
 import { generateAuthUrl } from '../utils/googleOAuth2.js';
 import { loginOrSignupWithGoogle } from '../services/auth.js';
 import createHttpError from 'http-errors';
@@ -27,8 +27,8 @@ export const registerUserController = async (req, res, next) => {
 
     res.cookie('sessionId', session._id, {
       httpOnly: true,
-      secure: true,
-      sameSite: 'none',
+      secure: false, 
+      sameSite: 'lax',
       maxAge: FIFTEEN_MINUTES,
       path: '/',
     });
@@ -63,8 +63,8 @@ export const loginUserController = async (req, res, next) => {
 
     res.cookie('sessionId', session._id, {
       httpOnly: true,
-      secure: true,
-      sameSite: 'none',
+      secure: false, 
+      sameSite: 'lax',
       maxAge: FIFTEEN_MINUTES,
       path: '/',
     });
@@ -99,8 +99,8 @@ export const loginWithGoogleController = async (req, res, next) => {
 
     res.cookie('sessionId', session._id, {
       httpOnly: true,
-      secure: true,
-      sameSite: 'none',
+      secure: false, 
+      sameSite: 'lax',
       maxAge: FIFTEEN_MINUTES,
       path: '/',
     });
@@ -135,8 +135,8 @@ export const logoutUserController = async (req, res, next) => {
 
     res.clearCookie('sessionId', {
       httpOnly: true,
-      secure: true,
-      sameSite: 'none',
+      secure: false, 
+      sameSite: 'lax',
       path: '/',
     });
 

@@ -19,8 +19,6 @@ export const startServer = () => {
     cors({
       origin: ['http://localhost:5173', 'https://home-mongodb-1.onrender.com'],
       credentials: true,
-      // methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      // allowedHeaders: ['Content-Type', 'Authorization'],
     }),
   );
 
