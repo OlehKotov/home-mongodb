@@ -65,6 +65,8 @@ export const registerUser = async (payload) => {
 
 export const loginUser = async (payload) => {
   const user = await UsersCollection.findOne({ email: payload.email });
+  console.log(user);
+  
   if (!user) {
     throw createHttpError(404, 'User not found');
   }
@@ -83,6 +85,8 @@ export const loginUser = async (payload) => {
     accessToken,
     sessionValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
   });
+  console.log(session);
+  
 
   return { user, session };
 };

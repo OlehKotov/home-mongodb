@@ -17,12 +17,20 @@ export const registerUserController = async (req, res, next) => {
     const { password, __v, createdAt, updatedAt, ...safeUser } =
       user.toObject();
 
-    res.cookie('sessionId', session._id.toString(), {
+    // res.cookie('sessionId', session._id.toString(), {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === 'production',
+    //   sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    //   maxAge: FIFTEEN_MINUTES,
+    //   path: '/',
+    // });
+
+    res.cookie('sessionId', session._id, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: true,
+      sameSite: 'none',
       maxAge: FIFTEEN_MINUTES,
-      path: '/',
+      path: "/",
     });
 
     res.status(201).json({
@@ -45,12 +53,20 @@ export const loginUserController = async (req, res, next) => {
     const { password, __v, createdAt, updatedAt, ...safeUser } =
       user.toObject();
 
-    res.cookie('sessionId', session._id.toString(), {
+    // res.cookie('sessionId', session._id.toString(), {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === 'production',
+    //   sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    //   maxAge: FIFTEEN_MINUTES,
+    //   path: '/',
+    // });
+
+    res.cookie('sessionId', session._id, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: true,
+      sameSite: 'none',
       maxAge: FIFTEEN_MINUTES,
-      path: '/',
+      path: "/",
     });
 
     res.json({
@@ -73,12 +89,20 @@ export const loginWithGoogleController = async (req, res, next) => {
     const { password, __v, createdAt, updatedAt, ...safeUser } =
       user.toObject();
 
-    res.cookie('sessionId', session._id.toString(), {
+    // res.cookie('sessionId', session._id.toString(), {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === 'production',
+    //   sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    //   maxAge: FIFTEEN_MINUTES,
+    //   path: '/',
+    // });
+
+    res.cookie('sessionId', session._id, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: true,
+      sameSite: 'none',
       maxAge: FIFTEEN_MINUTES,
-      path: '/',
+      path: "/",
     });
 
     res.json({
@@ -102,12 +126,14 @@ export const logoutUserController = async (req, res, next) => {
       await logoutUser(sessionId);
     }
 
-    res.clearCookie('sessionId', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      path: '/',
-    });
+    // res.clearCookie('sessionId', {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === 'production',
+    //   sameSite: 'strict',
+    //   path: '/',
+    // });
+
+    res.clearCookie('sessionId');
 
     res.status(204).send();
   } catch (error) {
