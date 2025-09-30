@@ -30,7 +30,7 @@ export const registerUserController = async (req, res, next) => {
       secure: true,
       sameSite: 'none',
       maxAge: FIFTEEN_MINUTES,
-      path: "/",
+      path: '/',
     });
 
     res.status(201).json({
@@ -66,7 +66,7 @@ export const loginUserController = async (req, res, next) => {
       secure: true,
       sameSite: 'none',
       maxAge: FIFTEEN_MINUTES,
-      path: "/",
+      path: '/',
     });
 
     res.json({
@@ -102,7 +102,7 @@ export const loginWithGoogleController = async (req, res, next) => {
       secure: true,
       sameSite: 'none',
       maxAge: FIFTEEN_MINUTES,
-      path: "/",
+      path: '/',
     });
 
     res.json({
@@ -133,7 +133,12 @@ export const logoutUserController = async (req, res, next) => {
     //   path: '/',
     // });
 
-    res.clearCookie('sessionId');
+    res.clearCookie('sessionId', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'none',
+      path: '/',
+    });
 
     res.status(204).send();
   } catch (error) {
