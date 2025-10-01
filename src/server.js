@@ -1,5 +1,5 @@
 import express from 'express';
-import pino from 'pino-http';
+// import pino from 'pino-http';
 import cors from 'cors';
 // import { getEnvVar } from './utils/getEnvVar.js';
 import { errorHandler } from './middlewares/errorHandler.js';
@@ -17,13 +17,13 @@ app.use(
   }),
 );
 app.use(cookieParser());
-app.use(
-  pino({
-    transport: {
-      target: 'pino-pretty',
-    },
-  }),
-);
+// app.use(
+//   pino({
+//     transport: {
+//       target: 'pino-pretty',
+//     },
+//   }),
+// );
 app.use(router);
 app.use(notFoundHandler);
 app.use(errorHandler);
