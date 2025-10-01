@@ -5,11 +5,16 @@ import app from './server.js';
 let isDbConnected = false;
 
 export default async function handler(req, res) {
-  if (!isDbConnected) {
-    await initMongoDB();
-    isDbConnected = true;
+  try {
+    if (!isDbConnected) {
+      await initMongoDB();
+      isDbConnected = true;
+    }
+    app.handle(req, res); 
+  } catch (err) {
+    console.error("Serverless crash:", err);
+    res.status(500).json({ message: "Internal server error" });
   }
-  return app(req, res);
 }
 
 // const bootstrap = async () => {
