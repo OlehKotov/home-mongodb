@@ -27,8 +27,8 @@ export const registerUserController = async (req, res, next) => {
 
     res.cookie('sessionId', session._id, {
       httpOnly: true,
-      secure: false, 
-      sameSite: 'lax',
+      secure: true, 
+      sameSite: 'none',
       maxAge: FIFTEEN_MINUTES,
       path: '/',
     });
@@ -63,8 +63,8 @@ export const loginUserController = async (req, res, next) => {
 
     res.cookie('sessionId', session._id, {
       httpOnly: true,
-      secure: false, 
-      sameSite: 'lax',
+      secure: true, 
+      sameSite: 'none',
       maxAge: FIFTEEN_MINUTES,
       path: '/',
     });
@@ -99,8 +99,8 @@ export const loginWithGoogleController = async (req, res, next) => {
 
     res.cookie('sessionId', session._id, {
       httpOnly: true,
-      secure: false, 
-      sameSite: 'lax',
+      secure: true, 
+      sameSite: 'none',
       maxAge: FIFTEEN_MINUTES,
       path: '/',
     });
@@ -135,8 +135,8 @@ export const logoutUserController = async (req, res, next) => {
 
     res.clearCookie('sessionId', {
       httpOnly: true,
-      secure: false, 
-      sameSite: 'lax',
+      secure: true, 
+      sameSite: 'none',
       path: '/',
     });
 
