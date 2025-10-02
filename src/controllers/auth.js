@@ -17,15 +17,7 @@ export const registerUserController = async (req, res, next) => {
     const { password, __v, createdAt, updatedAt, ...safeUser } =
       user.toObject();
 
-    // res.cookie('sessionId', session._id.toString(), {
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === 'production',
-    //   sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    //   maxAge: FIFTEEN_MINUTES,
-    //   path: '/',
-    // });
-
-    res.cookie('sessionId', session._id, {
+    res.cookie('sessionId', session._id.toString(), {
       httpOnly: true,
       secure: true, 
       sameSite: 'none',
@@ -53,15 +45,7 @@ export const loginUserController = async (req, res, next) => {
     const { password, __v, createdAt, updatedAt, ...safeUser } =
       user.toObject();
 
-    // res.cookie('sessionId', session._id.toString(), {
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === 'production',
-    //   sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    //   maxAge: FIFTEEN_MINUTES,
-    //   path: '/',
-    // });
-
-    res.cookie('sessionId', session._id, {
+    res.cookie('sessionId', session._id.toString(), {
       httpOnly: true,
       secure: true, 
       sameSite: 'none',
@@ -89,15 +73,7 @@ export const loginWithGoogleController = async (req, res, next) => {
     const { password, __v, createdAt, updatedAt, ...safeUser } =
       user.toObject();
 
-    // res.cookie('sessionId', session._id.toString(), {
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === 'production',
-    //   sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    //   maxAge: FIFTEEN_MINUTES,
-    //   path: '/',
-    // });
-
-    res.cookie('sessionId', session._id, {
+    res.cookie('sessionId', session._id.toString(), {
       httpOnly: true,
       secure: true, 
       sameSite: 'none',
@@ -125,13 +101,6 @@ export const logoutUserController = async (req, res, next) => {
     if (sessionId) {
       await logoutUser(sessionId);
     }
-
-    // res.clearCookie('sessionId', {
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === 'production',
-    //   sameSite: 'strict',
-    //   path: '/',
-    // });
 
     res.clearCookie('sessionId', {
       httpOnly: true,
