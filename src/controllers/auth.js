@@ -94,6 +94,17 @@ export const loginWithGoogleController = async (req, res, next) => {
   }
 };
 
+export const getGoogleOAuthUrlController = async (req, res) => {
+  const url = generateAuthUrl();
+  res.json({
+    status: 200,
+    message: 'Successfully get Google OAuth url!',
+    data: {
+      url,
+    },
+  });
+};
+
 export const logoutUserController = async (req, res, next) => {
   try {
     const sessionId = req.cookies?.sessionId;
@@ -136,13 +147,4 @@ export const resetPasswordController = async (req, res) => {
   });
 };
 
-export const getGoogleOAuthUrlController = async (req, res) => {
-  const url = generateAuthUrl();
-  res.json({
-    status: 200,
-    message: 'Successfully get Google OAuth url!',
-    data: {
-      url,
-    },
-  });
-};
+
