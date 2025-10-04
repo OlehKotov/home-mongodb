@@ -85,7 +85,6 @@ export const loginUser = async (payload) => {
     accessToken,
     sessionValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
   });
-  console.log(session);
 
   return { user, session };
 };
