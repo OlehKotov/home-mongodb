@@ -20,7 +20,7 @@ router.use(authenticate);
 router.get('/', checkRoles(ROLES.ADMIN), ctrlWrapper(getUsersController));
 router.get(
   '/:userId',
-  checkRoles(ROLES.ADMIN),
+  checkRoles(ROLES.ADMIN, ROLES.OWNER),
   isValidId,
   ctrlWrapper(getUserByIdController),
 );
