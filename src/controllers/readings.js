@@ -5,7 +5,8 @@ import { getAllReadings, updateReadings } from "../services/readings.js";
 
 export const getReadingsController = async (req, res, next) => {
   try {
-    const readings = await getAllReadings(req.user.apartmentId);
+    const limit = Number(req.query.limit) || 2;
+    const readings = await getAllReadings(req.user.apartmentId, limit);
 
     res.json({
       status: 200,
