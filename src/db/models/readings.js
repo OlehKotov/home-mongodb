@@ -27,4 +27,4 @@ const readingsSchema = new Schema(
   { timestamps: true },
 );
 
-export const ReadingsCollection = model('readings', readingsSchema);
+export const ReadingsCollection = model('Readings', readingsSchema);
