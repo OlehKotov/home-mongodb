@@ -78,7 +78,7 @@
 import { ReadingsCollection } from '../db/models/readings.js';
 import { ApartmentCollection } from '../db/models/apartment.js';
 import { InvoiceCollection } from '../db/models/invoice.js';
-import { generateInvoicePDF } from '../utils/generateInvoicePDF.js';
+
 
 export const createInvoiceService = async ({
   apartmentId,
