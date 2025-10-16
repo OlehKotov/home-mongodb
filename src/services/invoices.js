@@ -75,8 +75,6 @@
 //   return invoice;
 // };
 
-
-
 import { ReadingsCollection } from '../db/models/readings.js';
 import { ApartmentCollection } from '../db/models/apartment.js';
 import { InvoiceCollection } from '../db/models/invoice.js';
@@ -179,10 +177,11 @@ export const createInvoiceService = async ({
     charged: manualHouseElectricity * tariffs.electricityHouse,
   };
 
-  const totalAmount =
-    (services.reduce((sum, s) => sum + s.charged, 0) +
+  const totalAmount = (
+    services.reduce((sum, s) => sum + s.charged, 0) +
     maintenance.charged +
-    publicElectricity.charged).toFixed(2);
+    publicElectricity.charged
+  ).toFixed(2);
 
   const toPay = totalAmount + manualDebt;
 
@@ -200,16 +199,8 @@ export const createInvoiceService = async ({
     toPay,
   });
 
-  const pdfUrl = await generateInvoicePDF(invoice);
-  invoice.pdfUrl = pdfUrl;
-  await invoice.save();
-
   return invoice;
 };
-
-// export const getInvoicesByApartment = async (apartmentId) => {
-//   return InvoiceCollection.find({ apartmentId }).populate('userId', 'name email');
-// };
 
 export const getInvoicesByApartment = async (apartmentId, limit = 3) => {
   const invoices = await InvoiceCollection.find({ apartmentId })
